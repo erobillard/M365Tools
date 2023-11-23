@@ -1,5 +1,5 @@
 # M365Tools
-This repo is for any useful tools and scripts for Microsoft 365 that I build or enhance from other projects. 
+This repo is for any useful tools and scripts for Microsoft 365. 
 
 ## PowerShell Cmdlets: 
 [Copy-SPOFolder](https://github.com/erobillard/M365Tools/blob/main/docs/Copy-SPOFolder.md)
