@@ -1,10 +1,10 @@
 ---
 Module Name: erobillard.M365Tools
 applicable: SharePoint Online
-title: Copy-SPFolder
+title: Copy-SPOFolder
 ---
   
-# Copy-SPFolder
+# Copy-SPOFolder
 
 ## SYNOPSIS
 Copy a folder and its contents from a source folder to a target folder, including all available versions of each file. The target folder must exist. 
@@ -15,7 +15,7 @@ Source and target URLs may be pasted from the address bar of a browser open to a
 ## SYNTAX
 
 ```powershell
-Copy-SPFolder [-Verbose] [-SiteUrl <Url>] [-Source <Url>] [-Target <Url>]
+Copy-SPOFolder [-Verbose] [-SiteUrl <Url>] [-Source <Url>] [-Target <Url>]
 ```
 
 ## DESCRIPTION
