@@ -15,7 +15,7 @@ Source and target URLs may be pasted from the address bar of a browser open to a
 ## SYNTAX
 
 ```powershell
-Copy-SPFolder [-Verbose] [-SiteUrl <String>] [-Source <String>] [-Target <String>]
+Copy-SPFolder [-Verbose] [-SiteUrl <Url>] [-Source <Url>] [-Target <Url>]
 ```
 
 ## DESCRIPTION
