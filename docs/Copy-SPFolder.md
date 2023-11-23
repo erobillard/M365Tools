@@ -46,7 +46,7 @@ Copy the folder specified in the -source parameter into the folder specified in 
 
 ### EXAMPLE 3
 ```powershell
-Copy-SPOFolder -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSourceSite%2FShared%20Documents%2FGeneral" -Target "[https://contoso.sharepoint.com/sites/TargetSite/Shared Documents/General/Test Data](https://contoso.sharepoint.com/sites/TargetSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSiteB%2FShared%20Documents%2FGeneral&viewid=9427acf1%2De1ae%2D4ecc%2Db456%2D4a1bead7726b)" 
+Copy-SPOFolder -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSourceSite%2FShared%20Documents%2FGeneral" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSiteB%2FShared%20Documents%2FGeneral&viewid=9427acf1%2De1ae%2D4ecc%2Db456%2D4a1bead7726b" 
 ```
 
 Similar to Example 2, this time the source and target values are pasted from the browser rather than "natural" SharePoint Online URLs.
