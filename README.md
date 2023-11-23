@@ -2,10 +2,10 @@
 This repo is for any useful tools and scripts for Microsoft 365 that I build or enhance from other projects. 
 
 ## PowerShell Cmdlets: 
-[Copy-SPFolder](https://github.com/erobillard/M365Tools/blob/main/docs/Copy-SPFolder.md)
+[Copy-SPOFolder](https://github.com/erobillard/M365Tools/blob/main/docs/Copy-SPOFolder.md)
 
 Minimal path to awesome: 
-   - Open Powershell and run Copy-SPFolder with source and target parameters. 
+   - Open Powershell and run Copy-SPOFolder with source and target parameters. 
 
 Path to alternative awesome:
 1. Create and configure a SharePoint List: 
