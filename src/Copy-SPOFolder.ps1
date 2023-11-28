@@ -26,8 +26,9 @@
     Required when not reading from a SPlist, the URL of the library or folder to copy TO. 
 
 .EXAMPLE
-    Copy-SPOFolder -Verbose -siteUrl "https://contoso.sharepoint.com/sites/SharePointTools" 
-    Copy-SPOFolder -Verbose -source "https://contoso.sharepoint.com/sites/SourceSite/Shared Documents" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared Documents" 
+    Copy-SPOFolder -Verbose -ListUrl "https://contoso.sharepoint.com/sites/SharePointTools/Copy a Folder"
+    Copy-SPOFolder -Verbose -SiteUrl "https://contoso.sharepoint.com/sites/SharePointTools" 
+    Copy-SPOFolder -Verbose -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared Documents" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared Documents" 
     Copy-SPOFolder -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/General" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared%20Documents/General" 
     Copy-SPOFolder -Source https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSourceSite%2FShared%20Documents%2FGeneral%2FTest%20Data -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared Documents/General/Test Data" 
 
