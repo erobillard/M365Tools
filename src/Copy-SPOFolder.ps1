@@ -3,31 +3,53 @@
     Copy a folder and its contents from a source folder to a target folder, including all available versions of each file. The target folder must exist. 
     Can either be run from the command line with a source and target, or will read source and target values from a SharePoint list.
     The source and target can be URLs pasted from the address bar of a browser open to a library or folder. Does not (yet) support links copied using the "Copy Link" button.
+    Source repo: https://github.com/erobillard/M365/ 
 
 .DESCRIPTION
     To provide source and target values, either:
-        - Set up a list with 3 columns that specify the source, target and action. All rows with an Action of Copy will be processed. The list's name and column names are specified as vars below.
+        - Set up a list with 3 columns to specify the source, target and action. All rows where Action is Copy will be processed. Column names may be specified as parameters.
         - Command line parameters can indicate the source and target URLs.
     Constraints: 
-        The target folder must exist.
-        The account executing the cmdlet requires read permissions for the source and write permissions for the target. 
-        The cmdlet will not copy from or to the tenant's root SPO Site (e.g.: the top-level site found at https://contoso.sharepoint.com/)
+        The target folder(s) must exist.
+        The account executing the cmdlet requires read permissions (Member or Reader) for each source and read-write (Member or Contributor) permissions for each target. If reading from a list, read-write permissions on the list. 
+        The cmdlet will not copy from or to the tenant's root SPO Site (e.g.: the top-level site found at https://contoso.sharepoint.com/).
 
-.PARAMETER verbose
-    Optional, -verbose displays detailed output if present
+.PARAMETER Verbose
+    Optional, -Verbose displays detailed output if present
 
-.PARAMETER siteUrl
-    Required when reading from a list, this is the path of the site to connect with for authentication.
+.PARAMETER ReadOnly
+    Optional, -ReadOnly will run without executing any actual moves or row updates. Output includes a count of items that would be affected.
 
-.PARAMETER source
+.PARAMETER SiteUrl 
+    Deprecated, use ListUrl instead.
+
+.PARAMETER ListUrl
+    Either ListUrl or both Source and Target are required. ListUrl is the path to the list containing Source, Target, and Action columns. The site containing the list is used to connect for authentication.
+    E.g.: -ListUrl "https://contoso.sharepoint.com/sites/SharePointTools/Copy%20a%20Folder"
+
+.PARAMETER SourceColumnName
+    Optional. The name of the column in the list referenced by ListUrl where source addresses are found. Default: SourceUrl
+    E.g.: -SourceColumnName "Origin"
+
+.PARAMETER TargetColumnName
+    Optional. The name of the column in the list referenced by ListUrl where target addresses are found. Default: TargetUrl
+    E.g.: -TargetColumnName "Destination"
+
+.PARAMETER ActionColumnName
+    Optional. The name of the column in the list referenced by ListUrl where the action/status ("Copy") is found. Default: Action
+    E.g.: -ActionColumnName "Status"
+
+.PARAMETER Source
     Required when not reading from a SPList, the URL of the library or folder to copy FROM. The site at this location is used for authentication. 
+    E.g.: -Source "https://contoso.sharepoint.com/sites/SiteA/Shared%20Documents/General"
 
-.PARAMETER target
+.PARAMETER Target
     Required when not reading from a SPlist, the URL of the library or folder to copy TO. 
+    E.g.: -Source "https://contoso.sharepoint.com/sites/SiteB/Shared%20Documents/General"
 
 .EXAMPLE
     Copy-SPOFolder -Verbose -ListUrl "https://contoso.sharepoint.com/sites/SharePointTools/Copy a Folder"
-    Copy-SPOFolder -Verbose -SiteUrl "https://contoso.sharepoint.com/sites/SharePointTools" 
+    Copy-SPOFolder -Verbose -ListUrl "https://contoso.sharepoint.com/sites/SharePointTools/Copy%20a%20Folder" -SourceColumnName "Source URL" -TargetColumnName "Target URL" -ActionColumnName "Action"
     Copy-SPOFolder -Verbose -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared Documents" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared Documents" 
     Copy-SPOFolder -Source "https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/General" -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared%20Documents/General" 
     Copy-SPOFolder -Source https://contoso.sharepoint.com/sites/SourceSite/Shared%20Documents/Forms/AllItems.aspx?id=%2Fsites%2FSourceSite%2FShared%20Documents%2FGeneral%2FTest%20Data -Target "https://contoso.sharepoint.com/sites/TargetSite/Shared Documents/General/Test Data" 
@@ -48,7 +70,8 @@
     Eli Robillard, https://github.com/erobillard
 
 .LASTEDIT
-    2023-11-22 Refactored somewhat and converted to a cmdlet
+    2023-11-22 Eli Robillard    Version: 1.0.0.0    Refactored somewhat and converted to a cmdlet
+    2023-11-28 Eli Robillard    Version: 1.0.0.1    See version notes.
 
 .VERSION
     1.0.0.0 Initial Release
@@ -89,7 +112,6 @@ $listSiteUrl = ""
 $copyStatusValue = "Copy"
 $newStatusValue = "Copy-Complete"
 $listExecution = $true
-$iteration=0
 $itemCount=0
 
 # Read parameters into vars
@@ -107,7 +129,7 @@ else {
         $listSiteUrl = Get-SPWebPath($Source)
         $sourceUrl = $Source
         $targetUrl = $Target
-        if ($Verbose) { Write-Host "Site Url: " $SiteUrl " || Source URL: " $sourceUrl " || Target URL: " $targetUrl }
+        if ($Verbose) { Write-Host "Site: " $listSiteUrl " || Source: " $sourceUrl " || Target: " $targetUrl }
     }
     else {
         Write-Host "Error: At least one of these as parameters must be used: -ListUrl [value] -SiteUrl [value] OR -Source [value]" -ForegroundColor Red
@@ -130,7 +152,7 @@ if($PSBoundParameters.ContainsKey('ActionColumnName')) {
 }
 else { $statusColumnName = "Action" }
 
-Write-Host "ReadOnly specified, no files will be copied." $ReadOnly
+if ($ReadOnly) { Write-Host "ReadOnly specified, no files will be copied." }
 if ($Verbose) { 
     Write-Host "Verbose mode" $Verbose
     Write-Host "Source column name:" $sourceUrlColumnName
@@ -148,7 +170,7 @@ if ($listExecution) {
 else {
     # Create a one-row array using the command-line parameters. 
     if ($Verbose) { Write-Host "Creating the array:" }
-    $listItems = @{ $sourceUrlColumnName = $sourceUrl; $targetUrlColumnName = $targetUrl; $statusColumnName = "Copy" }
+    $listItems = @{ $sourceUrlColumnName = $sourceUrl; $targetUrlColumnName = $targetUrl; $statusColumnName = $copyStatusValue }
     if ($Verbose) { Write-Host $listItems }
 }
 
@@ -156,7 +178,7 @@ else {
 foreach ($item in $listItems) {
         # Process the source URL
         $sourceUrl = $item[$sourceUrlColumnName]
-        if ($sourceUrl -eq "" -or $sourceUrl -eq $null) {
+        if ($sourceUrl -eq "" -or ($null -eq $sourceUrl)) {
             Write-Host "Error: Source URL is an empty string. To resolve: Check that a value was provided. If reading from a list, confirm that the column name is actually" $sourceUrlColumnName -ForegroundColor Red
             return
         }
@@ -166,7 +188,7 @@ foreach ($item in $listItems) {
 
         # Process the target URL
         $targetUrl = $item[$targetUrlColumnName]
-        if ($targetUrl -eq "" -or $targetUrl -eq $null) {
+        if ($targetUrl -eq "" -or ($null -eq $targetUrl)) {
             Write-Host "Error: Target URL is an empty string. To resolve: Check that a value was provided. If reading from a list, confirm that the column name is actually" $targetUrlColumnName -ForegroundColor Red
             return
         }
@@ -174,7 +196,7 @@ foreach ($item in $listItems) {
         # Convert the target URL to a natural SPO path 
         $targetUrl = Get-SPOFolderNaturalUrl($targetUrl) 
 
-        Write-Host "Copying from: " $sourceUrl " to: " $targetUrl 
+        Write-Host "Copying from: " $sourceUrl "to:" $targetUrl 
 
         # Use the System.Uri class to parse the URL
         $uri = New-Object System.Uri($sourceUrl)
@@ -183,12 +205,7 @@ foreach ($item in $listItems) {
         $sitePath = Get-SPWebPath($uri)
         $libraryPath = Get-LibraryPath($uri)
 
-        if ($iteration -eq 0) { 
-            # Only need to connect once, may need to update to reconnect if/when a new sitePath is encountered
-            # Connect to the source site (where files and folders will be copied from). This needs to match the relative Url (sourceRelative) or an error will be thrown during Get-PnPListItem
-            $connection = Connect-PnPOnline -Url $sitePath -Interactive
-            $iteration++
-        }
+        $connection = Connect-PnPOnline -Url $sitePath -Interactive
 
         #Set the vars we'll use in the actual operations
         $sourceIndex = $sourceUrl.IndexOf("/sites")
@@ -224,9 +241,9 @@ foreach ($item in $listItems) {
 
         if ($listExecution -and -not ($ReadOnly)) {
             # Update the status on the row to newStatusValue (e.g. Copy-Complete)
-            $connectionSiteUrl = Connect-PnPOnline -Url $siteUrl -Interactive
-            $set = Set-PnPListItem -List $listName -Identity $item.Id -Values @{ $statusColumnName = $newStatusValue } -Connection $connectionSiteUrl
+            $connectionSiteUrl = Connect-PnPOnline -Url $listSiteUrl -Interactive
+            Set-PnPListItem -List $listName -Identity $item.Id -Values @{ $statusColumnName = $newStatusValue } -Connection $connectionSiteUrl
         }
 }
 
-Write-Host "Copy-SPOFolder Complete:" $itemCount.ToString() "items processed."
+Write-Host "Copy-SPOFolder complete:" $itemCount.ToString() "items processed."

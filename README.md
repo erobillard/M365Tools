@@ -11,8 +11,10 @@ The PnP Powershell library has a Copy-PnPFile cmdlet with important advantages o
 
 However there was nothing (when I wrote this) to copy an entire library or folder. I was working with a few clients on migrations, and once we did a lift-and-shift into the tenant, we needed a way to further copy/move folders around. Since no one loves building delimited files, I went with a SharePoint list with a UX similar to most migration tools, i.e., with Source and Target columns, and an Action column to indicate the status of each row. 
 
+An even better implementation might be to create a Form to "Request a folder Move" with guidance along the way (paste source, paste target, etc.), and to post a link to this form from a Help Desk page. Power Automate would copy new requests into the SPO list so no one ever needs to interact directly with the list, and perhaps a step for IT to notify the user by email that the job is complete would wrap it up. 
+
 ### Minimal path to awesome: 
-   - Open Powershell and run Copy-SPOFolder with source and target parameters. 
+   - Open Powershell to the folder with the .ps1 files and execute: Copy-SPOFolder -Source [url] -Target [url] 
 
 ### Alternative path to awesome:
 1. Create and configure a SharePoint List: 
@@ -36,12 +38,12 @@ Step 5:
 ![Command line example.](https://github.com/erobillard/M365Tools/blob/main/docs/Guide-PSCommandLine-Execute.png)
 
 ### Suggestions
-There are a few ideas already considered for the backlog: 
-   - Change the -SiteUrl parameter to -ListUrl and get rid of the hardcoded list name.
-   - Either use this as a starting point of a Move-SPOList cmdlet, or add a -DeleteSource parameter to accomplish the same.
-   - Support the SPO uri format provided by the Copy Link buttons.
-   - Provide the option to set the Copy List column names as parameters.
-   - Submit a command-line only version to the PnP Powershell project.
-   - Document the steps to deploy the script as an Azure Function App, and provide a means of kicking off the Copy from the Copy List. This would require extensive changes to the authentication sections in order to use credentials securely stored with the Azure Function.
+There are a few ideas already considered (or [x] implemented): 
+[x] Add a -ListUrl parameter (used instead of -SiteUrl) so no one ever needs to edit the hardcoded list name. Done!
+[ ] Either use this as a starting point of a Move-SPOList cmdlet, or add a -DeleteSource parameter to accomplish the same.
+[x] Support the SPO uri format provided by the Copy Link buttons.
+[x] Provide the option to set the Copy List column names as parameters.
+[ ] Submit a command-line only version to the PnP Powershell project.
+[ ] Document the steps to deploy the script as an Azure Function App, and provide a means of kicking off the Copy from the Copy List. This would require extensive changes to the authentication sections in order to use credentials securely stored with the Azure Function.
 
 All are welcome to join the project, pull requests to implement these and other are ideas more than welcome.
