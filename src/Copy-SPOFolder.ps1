@@ -81,6 +81,7 @@
             Added ReadOnly parameter to run with no changes.
             Added copyStatusValue var so a value other than "Copy" can be used for other languages.
             Display parameter settings at statup when -Verbose is present. This helps identify issues with column name casing.
+    1.0.0.2 Fixed handling of ListUrl parameter, list name was not being extracted correctly, now looks for the element after the /Lists/ segment.
 #>
 
 param (
@@ -116,8 +117,13 @@ $itemCount=0
 
 # Read parameters into vars
 if ($PSBoundParameters.ContainsKey('ListUrl') -and $ListUrl -ne $true) { 
-    if ($Verbose) { Write-Host "ListUrl was provided: " $ListUrl }
     $listSiteUrl = Get-SPWebPath($ListUrl)
+    $listName = Get-ListName($ListUrl)
+    if ($Verbose) { 
+        Write-Host "ListUrl was provided: " $ListUrl 
+        Write-Host "List site: " $listSiteUrl 
+        Write-Host "List name: " $listName
+    }
 }
 elseif ($PSBoundParameters.ContainsKey('SiteUrl') -and $SiteUrl -ne $true) { 
     if ($Verbose) { Write-Host "SiteUrl was provided: " $SiteUrl }

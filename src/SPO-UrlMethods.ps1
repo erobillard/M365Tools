@@ -26,6 +26,13 @@
 .NOTES
     Right now the only error checking on the input is to confirm ".sharepoint.com" is in the Url. 
     This script only contains string converstions, no connection to SPO is actually required. 
+
+.VERSION
+    1.0.0.0 Initial Release
+    1.0.0.2 Added Get-ListName to grab the list name segment from the ListUrl.
+            Fixed error handling in Get-SPONaturalFileUrl. 
+                Now assumes the Url needs no change (is manually provided) if it doesn't match one of the patterns for a copied URL.
+                $error renamed to $err to avoid collisions with this reserved word
 #>
 
 # Get-SPWebPath: Extracts the path to the SharePoint Site Collection from a complete SPO URL, e.g. to use as a target for authentication.
@@ -49,6 +56,14 @@ Function Get-LibraryPath ($Url) {
     return $secondSegment
 }
 
+Function Get-ListName ($Url) {
+    $parts = $Url -split "/"
+    $index = $parts.IndexOf("Lists")
+    # Get the segment after the "Lists" part (the library name)
+    $segment = $parts[$index + 1]
+    return $segment
+}
+
 Function Get-SPOFolderNaturalUrl ($Url) {
     Add-Type -AssemblyName System.Web
 
@@ -58,9 +73,9 @@ Function Get-SPOFolderNaturalUrl ($Url) {
     if ($decodedUrl -match ".sharepoint.com") {
     }
     else {
-        $error = "Error: The -Url parameter must be a SharePoint Online URL. Input provided:" + $Url
-        Write-Host $error -ForegroundColor Red
-        return $error 
+        $err = "Error: The -Url parameter must be a SharePoint Online URL. Input provided:" + $Url
+        Write-Host $err -ForegroundColor Red
+        return $err
     }
 
     # Define the regex pattern to match the "id=" parameter 
@@ -84,9 +99,11 @@ Function Get-SPOFolderNaturalUrl ($Url) {
         return Decode-CopyLinkUrl($decodedUrl)
     }
     else {
-        $error = "Error: Please use URLs for sharing with people who have existing access to the library or folder. This URL may expire: " + $decodedUrl 
-        Write-Host $error -ForegroundColor Red
-        return $error
+        $decodedUrl = [System.Web.HttpUtility]::UrlDecode($Url)
+        return $decodedUrl
+        #$err = "Error in Get-SPOFolderNaturalUrl: Please use URLs for sharing with people who have existing access to the library or folder. This URL may expire: " + $decodedUrl 
+        #Write-Host $err -ForegroundColor Red
+        #return $err
     }
 }
 
@@ -111,9 +128,8 @@ Function Decode-CopyLinkUrl ($Url) {
         return $newUrl
     }
     else {
-        $error = "Error: Please use URLs for sharing with people who have existing access to the library or folder. This URL may expire:" 
-        Write-Host $error $decodedUrl -ForegroundColor Red
-        return $error
-    }
+        $err = "Error in Decode-CopyLinkUrl: Please use URLs for sharing with people who have existing access to the library or folder. This URL may expire:" 
+        Write-Host $err $decodedUrl -ForegroundColor Red
+        return $err    }
 }
 
